@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Philipp Basler
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include <exception>
 #include <iostream>
 #include <stdlib.h>
@@ -34,6 +38,9 @@ try
   const std::string headerFileName{"C2HDM.h"};
   std::ofstream header(headerFileName);
   header
+      << "// SPDX-FileCopyrightText: 2021 Philipp Basler \n"
+      << "//\n"
+      << "// SPDX-License-Identifier: GPL-3.0-or-later\n"
       << "#include <BSMPT/minimizer/Minimizer.h>\n"
       << "#include <map>\n"
       << "#include <vector>\n"
@@ -54,7 +61,10 @@ try
   Minimizer::EWPTReturnType EWPT;
 
   std::ofstream source("C2HDM.cpp");
-  source << "#include \"" << headerFileName << "\" \n"
+  source << "// SPDX-FileCopyrightText: 2021 Philipp Basler \n"
+         << "//\n"
+         << "// SPDX-License-Identifier: GPL-3.0-or-later\n"
+         << "#include \"" << headerFileName << "\" \n"
          << ClassName << "::" << ClassName << "()\n"
          << "{\n"
          << "  std::size_t NHiggs = " << modelPointer->get_NHiggs() << ";\n"

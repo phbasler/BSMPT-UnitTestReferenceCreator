@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 Philipp Basler
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include <exception>
 #include <iostream>
 #include <stdlib.h>
