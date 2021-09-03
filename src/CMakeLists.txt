@@ -18,3 +18,7 @@ target_compile_features(RN2HDM PUBLIC cxx_std_14)
 add_executable(CPINTHEDARK CPINTHEDARK.cpp)
 target_link_libraries(CPINTHEDARK BSMPT::Minimizer BSMPT::Models )
 target_compile_features(CPINTHEDARK PUBLIC cxx_std_14)
+
+add_executable(CXSM CXSM.cpp)
+target_link_libraries(CXSM BSMPT::Minimizer BSMPT::Models )
+target_compile_features(CXSM PUBLIC cxx_std_14)
