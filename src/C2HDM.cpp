@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <vector>
 
+#include <BSMPT/baryo_calculation/CalculateEtaInterface.h>
 #include <BSMPT/minimizer/Minimizer.h>
 #include <BSMPT/models/ClassPotentialOrigin.h>
 #include <BSMPT/models/IncludeAllModels.h>
@@ -34,6 +35,8 @@ try
       ModelID::FChoose(ModelID::ModelIDs::C2HDM);
   modelPointer->initModel(example_point_C2HDM);
 
+  const double testVW = 0.1;
+
   const std::string ClassName{"Compare_C2HDM"};
   const std::string headerFileName{"C2HDM.h"};
   std::ofstream header(headerFileName);
@@ -47,13 +50,17 @@ try
       << "class Compare_C2HDM\n "
       << "{\n"
       << "public:\n"
-      << "\tusing Matrix3D = std::vector<std::vector<std::vector<double>>>;\n"
-      << "\tusing Matrix2D = std::vector<std::vector<double>>;\n"
-      << "\t" << ClassName << "();\n"
-      << "\tMatrix3D CheckTripleCT;\n"
-      << "\tMatrix3D CheckTripleCW;\n"
-      << "\tMatrix3D CheckTripleTree;\n"
-      << "\tstd::map<int, BSMPT::Minimizer::EWPTReturnType> EWPTPerSetting;\n"
+      << "  using Matrix3D = std::vector<std::vector<std::vector<double>>>;\n"
+      << "  using Matrix2D = std::vector<std::vector<double>>;\n"
+      << "  " << ClassName << "();\n"
+      << "  Matrix3D CheckTripleCT;\n"
+      << "  Matrix3D CheckTripleCW;\n"
+      << "  Matrix3D CheckTripleTree;\n"
+      << "  std::map<int, BSMPT::Minimizer::EWPTReturnType> EWPTPerSetting;\n"
+      << "  std::map<int,double> LWPerSetting;\n"
+      << "  std::map<int,std::vector<double>> vevSymmetricPerSetting;\n"
+      << "  std::map<int,std::vector<double>> etaPerSetting;\n"
+      << "  const double testVW = " << testVW << ";\n"
       << "};\n";
   header.close();
 
@@ -99,6 +106,42 @@ try
           else
             source << "  EWPTPerSetting[" << WhichMin
                    << "].EWMinimum.push_back(" << 0 << ");" << std::endl;
+        }
+
+        std::vector<double> vevsymmetricSolution, checksym, startpoint;
+        for (const auto &el : EWPT.EWMinimum)
+          startpoint.push_back(0.5 * el);
+        vevsymmetricSolution = Minimizer::Minimize_gen_all(
+            modelPointer, EWPT.Tc + 1, checksym, startpoint, WhichMin, true);
+
+        for (const auto &el : vevsymmetricSolution)
+        {
+          const auto value = (std::abs(el) > 1e-5) ? el : 0;
+          source << "  vevSymmetricPerSetting[" << WhichMin << "].push_back("
+                 << value << ");" << std::endl;
+        }
+
+        auto config =
+            std::pair<std::vector<bool>, int>{std::vector<bool>(5, true), 1};
+        Baryo::CalculateEtaInterface EtaInterface(config);
+
+        if (EWPT.vc / EWPT.Tc > 1)
+        {
+          auto eta = EtaInterface.CalcEta(testVW,
+                                          EWPT.EWMinimum,
+                                          vevsymmetricSolution,
+                                          EWPT.Tc,
+                                          modelPointer,
+                                          Minimizer::WhichMinimizerDefault);
+
+          source << "  LWPerSetting[" << WhichMin
+                 << "] = " << EtaInterface.getLW() << ";" << std::endl;
+
+          for (const auto &el : eta)
+          {
+            source << "  etaPerSetting[" << WhichMin << "].push_back(" << el
+                   << ");" << std::endl;
+          }
         }
       }
     }

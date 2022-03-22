@@ -17,6 +17,6 @@ endif(POLICY CMP0074)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
 find_package(PkgConfig)
-find_package(BSMPT 2.2.1 REQUIRED)
+find_package(BSMPT 2.3.3 REQUIRED)
 
 add_subdirectory(src)
